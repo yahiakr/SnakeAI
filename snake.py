@@ -9,6 +9,7 @@ from tkinter import messagebox
 from interface import *
 
 died = False
+score = 0
  
 class cube(object):
     rows = 20
@@ -98,6 +99,8 @@ class snake(object):
                 
        
     def reset(self, pos):
+        global score
+        score = 0
         self.head = cube(pos)
         self.body = []
         self.body.append(self.head)
@@ -180,7 +183,7 @@ def message_box(subject, content):
 
 
 def main():
-    global width, rows, s, snack, died
+    global width, rows, s, snack, died, score
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
@@ -194,24 +197,26 @@ def main():
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
-        print(obstacles(s.body))
-        # if cpt % 5 == 0:
+        #print(distances(s.body[0].pos,snack.pos))
+        print(distances(s.body[0].pos,s.body[-1].pos))
+        # if cpt % 2 == 0:
         #     key = random.randint(0,3)
         #     control(s,key)
         # cpt += 1
         s.move()
         if s.body[0].pos == snack.pos:
+            score += 1
             s.addCube()
             snack = cube(randomSnack(rows, s), color=(0,255,0))
 
         if died:
-            print("You lost!")
+            print("You lost! Score: {}".format(score))
             s.reset((10,10))
             died = False
  
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
-                print("You lost!")
+                print("You lost! Score: {}".format(score))
                 s.reset((10,10))
                 break
  
