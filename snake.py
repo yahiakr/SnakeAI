@@ -5,6 +5,10 @@ import random
 import pygame
 import tkinter as tk
 from tkinter import messagebox
+
+from interface import *
+
+died = False
  
 class cube(object):
     rows = 20
@@ -47,12 +51,6 @@ class snake(object):
         self.body.append(self.head)
         self.dirnx = 0
         self.dirny = 1
-        self.moves = [[0, -1],[0, 1],[1, 0],[-1, 0]]
-
-    def change(self,key):
-        self.dirnx = self.moves[key][0]
-        self.dirny = self.moves[key][1]
-        self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
  
     def move(self):
         for event in pygame.event.get():
@@ -90,13 +88,15 @@ class snake(object):
                 if i == len(self.body)-1:
                     self.turns.pop(p)
             else:
-                if c.dirnx == -1 and c.pos[0] <= 0: c.pos = (c.rows-1, c.pos[1])
-                elif c.dirnx == 1 and c.pos[0] >= c.rows-1: c.pos = (0,c.pos[1])
-                elif c.dirny == 1 and c.pos[1] >= c.rows-1: c.pos = (c.pos[0], 0)
-                elif c.dirny == -1 and c.pos[1] <= 0: c.pos = (c.pos[0],c.rows-1)
+                if (c.dirnx == -1 and c.pos[0] <= 0
+                or c.dirnx == 1 and c.pos[0] >= c.rows-1
+                or c.dirny == 1 and c.pos[1] >= c.rows-1
+                or c.dirny == -1 and c.pos[1] <= 0): 
+                    global died
+                    died = True
                 else: c.move(c.dirnx,c.dirny)
+                
        
- 
     def reset(self, pos):
         self.head = cube(pos)
         self.body = []
@@ -177,10 +177,10 @@ def message_box(subject, content):
         root.destroy()
     except:
         pass
- 
- 
+
+
 def main():
-    global width, rows, s, snack
+    global width, rows, s, snack, died
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
@@ -194,15 +194,20 @@ def main():
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
-        key = random.randint(0,3)
-        if cpt % 5 == 0:
-            key = random.randint(0,3)
-            s.change(key)
-        cpt += 1
+        print(obstacles(s.body))
+        # if cpt % 5 == 0:
+        #     key = random.randint(0,3)
+        #     control(s,key)
+        # cpt += 1
         s.move()
         if s.body[0].pos == snack.pos:
             s.addCube()
             snack = cube(randomSnack(rows, s), color=(0,255,0))
+
+        if died:
+            print("You lost!")
+            s.reset((10,10))
+            died = False
  
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
