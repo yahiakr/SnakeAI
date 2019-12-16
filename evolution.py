@@ -1,21 +1,16 @@
-from tensorflow import keras
-from tensorflow.keras import layers
 from tensorflow.keras.models import load_model
 
-import utils as GA
 import numpy as np
 import pandas as pd
 import random
 
+from model import model
+from KerasGA import GeneticAlgorithm
+
+GA = GeneticAlgorithm(model)
+
 def init():
-    model = keras.Sequential([
-    layers.Dense(8,input_dim=12, activation='sigmoid', name='fc1'),
-    layers.Dense(6, activation='relu', name='fc2'),
-    layers.Dense(4,activation='softmax', name='output')])
-
-    model.compile(optimizer=keras.optimizers.Adam(0.01),loss='categorical_crossentropy', metrics=['accuracy'])
-
-    population = GA.initial_population(model)
+    population = GA.initial_population()
 
     np.save('./data/population.npy',population)
     np.save('./data/scores.npy',[])
