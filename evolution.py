@@ -1,13 +1,24 @@
+from tensorflow import keras
+from tensorflow.keras import layers
 from tensorflow.keras.models import load_model
 
 import numpy as np
 import pandas as pd
 import random
 
-from model import model
 from KerasGA import GeneticAlgorithm
 
-GA = GeneticAlgorithm(model)
+population_size = 100
+generations = 30
+
+model = keras.Sequential([
+    layers.Dense(8,input_dim=12, activation='sigmoid', name='fc1'),
+    layers.Dense(6, activation='relu', name='fc2'),
+    layers.Dense(4,activation='softmax', name='output')])
+
+model.compile(optimizer=keras.optimizers.Adam(0.01),loss='categorical_crossentropy', metrics=['accuracy'])
+
+GA = GeneticAlgorithm(model,population_size= population_size,)
 
 def init():
     population = GA.initial_population()
@@ -19,13 +30,14 @@ def init():
     print("Initialisation done!")
 
 def load_weights(chromosome):
-    model = load_model('./models/agent.h5')
+    # model = load_model('./models/agent.h5')
     chromosomes = np.load('./data/population.npy',allow_pickle=True)
 
     model.set_weights(chromosomes[chromosome])
 
-    model.save('./models/agent.h5')
+    # model.save('./models/agent.h5')
     print("weights loaded for id : {}".format(chromosome))
+    return model
 
 def evolution():
     population = np.load('./data/population.npy',allow_pickle=True)

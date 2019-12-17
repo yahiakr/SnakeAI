@@ -1,3 +1,4 @@
+import random
 from random import shuffle
 
 def Selection(algorithm):
@@ -10,3 +11,5 @@ def roulette_selection(parents, pick):
         current += parent[1]
         if current > pick:
             return parent
+            
+    return parents[random.randint(0,len(parents)-1)]

@@ -2,6 +2,9 @@ from scipy.spatial import distance
 
 moves = [(0, -1),(0, 1),(1, 0),(-1, 0)]
 
+def neighbor(pos,dirc):
+    return (pos[0]+dirc[0], pos[1]+dirc[1])
+
 def obstacles(body):
     obstacles = [0,0,0,0]
     for i, c in enumerate(body):
@@ -11,9 +14,6 @@ def obstacles(body):
         if c.pos[1] <= 0 or (neighbor(c.pos,moves[0]) in list(map(lambda z:z.pos,body[i+1:]))) : obstacles[0] = 1
         break
     return obstacles
-
-def neighbor(pos,dirc):
-    return (pos[0]+dirc[0], pos[1]+dirc[1])
 
 def distances(head,x):
     distances = []

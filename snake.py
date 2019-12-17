@@ -4,9 +4,11 @@ import math
 import random
 import pygame
 import tkinter as tk
+import numpy as np
 from tkinter import messagebox
 
 from interface import *
+import evolution
 
 died = False
 score = 0
@@ -40,7 +42,7 @@ class cube(object):
             pygame.draw.circle(surface, (0,0,0), circleMiddle, radius)
             pygame.draw.circle(surface, (0,0,0), circleMiddle2, radius)
        
- 
+
  
  
 class snake(object):
@@ -52,7 +54,7 @@ class snake(object):
         self.body.append(self.head)
         self.dirnx = 0
         self.dirny = 1
- 
+    
     def move(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -65,6 +67,10 @@ class snake(object):
                     self.dirnx = -1
                     self.dirny = 0
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
+
+                elif keys[pygame.K_ESCAPE]:
+                    global died
+                    died = True
  
                 elif keys[pygame.K_RIGHT]:
                     self.dirnx = 1
@@ -89,13 +95,13 @@ class snake(object):
                 if i == len(self.body)-1:
                     self.turns.pop(p)
             else:
-                if (c.dirnx == -1 and c.pos[0] <= 0
+                c.move(c.dirnx,c.dirny)
+
+            if (c.dirnx == -1 and c.pos[0] <= 0
                 or c.dirnx == 1 and c.pos[0] >= c.rows-1
                 or c.dirny == 1 and c.pos[1] >= c.rows-1
                 or c.dirny == -1 and c.pos[1] <= 0): 
-                    global died
                     died = True
-                else: c.move(c.dirnx,c.dirny)
                 
        
     def reset(self, pos):
@@ -184,41 +190,76 @@ def message_box(subject, content):
 
 def main():
     global width, rows, s, snack, died, score
+    scores = []
     width = 500
     rows = 20
+
+    #evolution.init()
+
     win = pygame.display.set_mode((width, width))
     s = snake((255,0,0), (10,10))
     snack = cube(randomSnack(rows, s), color=(0,255,0))
     flag = True
-    cpt = 0
  
     clock = pygame.time.Clock()
+
+    cpt = 0
+    generation = 1
+    model = evolution.load_weights(cpt)
+    steps = 0
    
     while flag:
+        inputs = []
         pygame.time.delay(50)
         clock.tick(10)
-        #print(distances(s.body[0].pos,snack.pos))
-        print(distances(s.body[0].pos,s.body[-1].pos))
-        # if cpt % 2 == 0:
-        #     key = random.randint(0,3)
-        #     control(s,key)
-        # cpt += 1
+        d = distances(s.body[0].pos,snack.pos)
+
+        inputs += obstacles(s.body)
+        inputs += d
+        inputs += distances(s.body[0].pos,s.body[-1].pos)
+
+        arr = np.asarray([inputs])
+        output = model.predict(arr)[0]
+        key = np.argmax(output)
+
+        control(s,key)
+
         s.move()
+        steps += 1
+
+        if steps == 50 : died = True
+
         if s.body[0].pos == snack.pos:
-            score += 1
+            score += 1000
             s.addCube()
             snack = cube(randomSnack(rows, s), color=(0,255,0))
-
-        if died:
-            print("You lost! Score: {}".format(score))
-            s.reset((10,10))
-            died = False
  
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
-                print("You lost! Score: {}".format(score))
-                s.reset((10,10))
+                died = True
                 break
+        
+        if died:
+            score -= 500
+            print("Score : {}".format(score))
+            scores.append(score)
+            cpt += 1
+            if cpt % evolution.population_size == 0:
+                np.save('./data/scores.npy',scores)
+                scores = []
+                evolution.evolution()
+                cpt = 0
+                generation += 1
+            if generation % (evolution.generations + 1) == 0:
+                flag = False
+            else : 
+                model = evolution.load_weights(cpt)
+                print("generation : {} , id : {}".format(generation,cpt))
+            s.reset((10,10))
+            snack = cube(randomSnack(rows, s), color=(0,255,0))
+            steps = 0
+            died = False
+            
  
            
         redrawWindow(win)

@@ -8,7 +8,7 @@ from KerasGA.Mutation import Mutation
 
 class GeneticAlgorithm(object):
 
-    def __init__(self, model, population_size = 500, selection_rate = 0.4, mutation_rate = 0.3, 
+    def __init__(self, model, population_size = 500, selection_rate = 0.1, mutation_rate = 0.3, 
                 selection='roulette_selection',crossover='uniform',mutation='random_mutation'):
         self.model = model
         self.population_size = population_size
