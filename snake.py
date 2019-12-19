@@ -52,8 +52,10 @@ class snake(object):
         self.color = color
         self.head = cube(pos)
         self.body.append(self.head)
-        self.dirnx = 0
-        self.dirny = 1
+        self.addCube()
+        self.addCube()
+        self.dirnx = 1
+        self.dirny = 0
     
     def move(self):
         for event in pygame.event.get():
@@ -110,6 +112,8 @@ class snake(object):
         self.head = cube(pos)
         self.body = []
         self.body.append(self.head)
+        self.addCube()
+        self.addCube()
         self.turns = {}
         self.dirnx = 0
         self.dirny = 1
@@ -194,7 +198,7 @@ def main():
     width = 500
     rows = 20
 
-    #evolution.init()
+    evolution.init()
 
     win = pygame.display.set_mode((width, width))
     s = snake((255,0,0), (10,10))
@@ -211,18 +215,21 @@ def main():
     while flag:
         inputs = []
         pygame.time.delay(50)
-        clock.tick(10)
+        clock.tick(2)
         d = distances(s.body[0].pos,snack.pos)
 
         inputs += obstacles(s.body)
         inputs += d
-        inputs += distances(s.body[0].pos,s.body[-1].pos)
+        #inputs += distances(s.body[0].pos,s.body[-1].pos)
 
         arr = np.asarray([inputs])
         output = model.predict(arr)[0]
         key = np.argmax(output)
 
-        control(s,key)
+        if key == np.argmin(d) : score += 0.1
+        else : score -= 0.2
+        
+        control(s,1)
 
         s.move()
         steps += 1
@@ -230,7 +237,7 @@ def main():
         if steps == 50 : died = True
 
         if s.body[0].pos == snack.pos:
-            score += 1000
+            score += 0.7
             s.addCube()
             snack = cube(randomSnack(rows, s), color=(0,255,0))
  
@@ -240,7 +247,8 @@ def main():
                 break
         
         if died:
-            score -= 500
+            if steps < 4: score -= 2
+            else: score -= 1
             print("Score : {}".format(score))
             scores.append(score)
             cpt += 1

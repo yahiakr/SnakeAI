@@ -8,17 +8,16 @@ import random
 
 from KerasGA import GeneticAlgorithm
 
-population_size = 100
-generations = 30
+population_size = 500
+generations = 2
 
 model = keras.Sequential([
-    layers.Dense(8,input_dim=12, activation='sigmoid', name='fc1'),
-    layers.Dense(6, activation='relu', name='fc2'),
-    layers.Dense(4,activation='softmax', name='output')])
+    layers.Dense(24,input_dim=8, activation='relu', name='fc1'),
+    layers.Dense(3,activation='softmax', name='output')])
 
 model.compile(optimizer=keras.optimizers.Adam(0.01),loss='categorical_crossentropy', metrics=['accuracy'])
 
-GA = GeneticAlgorithm(model,population_size= population_size,)
+GA = GeneticAlgorithm(model,population_size= population_size,selection_rate = 0.1, mutation_rate = 0.05,)
 
 def init():
     population = GA.initial_population()

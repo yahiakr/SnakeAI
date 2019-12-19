@@ -1,6 +1,7 @@
 from scipy.spatial import distance
 
 moves = [(0, -1),(0, 1),(1, 0),(-1, 0)]
+dirc = ['Up','Down','Right','Left']
 
 def neighbor(pos,dirc):
     return (pos[0]+dirc[0], pos[1]+dirc[1])
@@ -22,8 +23,19 @@ def distances(head,x):
 
     return distances
 
+def turn(pos,move):
+    if pos[1] == 0:
+        tmp = move * -1
+        return (pos[0] * tmp,0)
+    else : 
+        return (0,pos[1] * move)
+
 def control(snake,move):
-    snake.dirnx = moves[move][0]
-    snake.dirny = moves[move][1]
-    snake.turns[snake.head.pos[:]] = [snake.dirnx, snake.dirny]
+    if move == 0 : return
+    else :
+        if move == 2 : move = -1
+        m = turn((snake.dirny,snake.dirnx),move)
+        snake.dirnx = m[0]
+        snake.dirny = m[1]
+        snake.turns[snake.head.pos[:]] = [snake.dirnx, snake.dirny]
 
