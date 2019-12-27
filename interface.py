@@ -1,7 +1,7 @@
 from scipy.spatial import distance
 
 moves = [(0, -1),(0, 1),(1, 0),(-1, 0)]
-dirc = ['Up','Down','Right','Left']
+d_name = ['Up','Down','Right','Left']
 
 def neighbor(pos,dirc):
     return (pos[0]+dirc[0], pos[1]+dirc[1])

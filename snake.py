@@ -215,7 +215,7 @@ def main():
     while flag:
         inputs = []
         pygame.time.delay(50)
-        clock.tick(2)
+        clock.tick(10)
         d = distances(s.body[0].pos,snack.pos)
 
         inputs += obstacles(s.body)
@@ -229,7 +229,7 @@ def main():
         if key == np.argmin(d) : score += 0.1
         else : score -= 0.2
         
-        control(s,1)
+        control(s,key)
 
         s.move()
         steps += 1
